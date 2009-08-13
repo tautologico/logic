@@ -1,0 +1,6 @@
+bhong.
+shong :- foo, batman.
+shong :- bhong, long.
+long.
+
+nonconformity :- teenageYears.
