@@ -15,6 +15,7 @@ case class ParseError(msg: String) extends Exception
 object Parser extends RegexParsers {
   val ident: Parser[String] = """[a-z]([a-zA-Z0-9])*""".r
   val body: Parser[List[String]] = repsep(ident, ",")
+  val goal: Parser[String] = ident<~"?"
   val clause: Parser[Clause] = ident~opt(":-"~body)<~"." ^^
      { case head~Some(":-"~bdy) => Clause(head, bdy)
        case head~None => Clause(head, List()) }
@@ -33,4 +34,9 @@ object Parser extends RegexParsers {
     case Error(msg, _) => throw ParseError("Panico no lago: "+msg)
   }
 
+  def parseGoal(goalStr: String) = parseAll(goal, goalStr) match {
+    case Success(r, i) => r
+    case Failure(msg, _) => throw ParseError("Panic! at the Disco: " + msg)
+    case Error(msg, _) => throw ParseError("Panico no lago: "+msg)
+  }
 }
