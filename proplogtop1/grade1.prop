@@ -1,0 +1,14 @@
+probEstat :- calc, linear.
+
+calc :- calcI, calcII.
+
+calcIIHab :- calcI.
+calcII :- calcIIHab, pagouCalcII.
+
+linearHab :- vetorial.
+linear :- linearHab, pagouLinear.
+
+
+calcI.
+pagouCalcII.
+vetorial.

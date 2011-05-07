@@ -30,13 +30,13 @@ object Parser extends RegexParsers {
 
   def parseClauses(reader: Reader) = parseAll(clauses, reader) match {
     case Success(r, i) => r
-    case Failure(msg, _) => throw ParseError("Panic! at the Disco: " + msg)
-    case Error(msg, _) => throw ParseError("Panico no lago: "+msg)
+    case Failure(msg, _) => throw ParseError(msg)
+    case Error(msg, _) => throw ParseError(msg)
   }
 
   def parseGoal(goalStr: String) = parseAll(goal, goalStr) match {
     case Success(r, i) => r
-    case Failure(msg, _) => throw ParseError("Panic! at the Disco: " + msg)
-    case Error(msg, _) => throw ParseError("Panico no lago: "+msg)
+    case Failure(msg, _) => throw ParseError(msg)
+    case Error(msg, _) => throw ParseError(msg)
   }
 }
