@@ -18,8 +18,8 @@ object TopLevel {
   }
 
   def main(args: Array[String]) {
-    println("Interpretador Proplog, versão 1.0")
-    println("Andrei de Araújo Formiga, 2010-2011")
+    println("Interpretador Proplog, versao 1.0")
+    println("Andrei de Araujo Formiga, 2010-2011")
     println("")
 
     var bdname = ""
@@ -31,7 +31,7 @@ object TopLevel {
 
     val file = new java.io.File(bdname)
     if (!file.exists()) {
-      println("Arquivo " + bdname + " não existe")
+      println("Arquivo " + bdname + " nao existe")
       exit(0)
     }
 
@@ -41,7 +41,7 @@ object TopLevel {
     println("Banco de dados importado com sucesso")
     println("")
     
-    println("Digite uma consulta (nome de proposição seguido de ?) ou 'sair'")
+    println("Digite uma consulta (nome de proposicao seguido de ?) ou 'sair'")
 
     var done = false
     var line = ""
@@ -56,9 +56,9 @@ object TopLevel {
           if (Interpreter.establishGoal(clauses, goal))
             println("Sim.")
           else
-            println("Não.")
+            println("Nao.")
         } catch {
-          case ParseError(_) => println("Consulta ou comando não reconhecido.")
+          case ParseError(_) => println("Consulta ou comando nao reconhecido.")
         }
         
       }
