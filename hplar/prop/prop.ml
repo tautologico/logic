@@ -13,16 +13,6 @@ let pname (P s) = s
 let show_propvar p = pname p 
 let print_propvar p = print_string @@ show_propvar p
 
-(* A few builtin propositions as formulas *)
-module Props = struct 
-  let p = Atom (P "P")
-  let q = Atom (P "Q")
-  let r = Atom (P "R")
-
-  let pi i = Atom (P ("P" ^ i))
-  let qi i = Atom (P ("Q" ^ i))
-end
-
 (* we're only interested in propositional logic here, 
    so the only atoms are primitive propositions, and we 
    drop the quantifiers *)
@@ -35,6 +25,16 @@ type formula =
   | Or of formula * formula
   | Imp of formula * formula
   | Iff of formula * formula
+
+(* A few builtin propositions as formulas *)
+module Props = struct 
+  let p = Atom (P "P")
+  let q = Atom (P "Q")
+  let r = Atom (P "R")
+
+  let pi i = Atom (P ("P" ^ i))
+  let qi i = Atom (P ("Q" ^ i))
+end
 
 (* Operators for simplifying surface syntax (without camlp4/camlp5) *)
 let ( ~~ ) f = Not f
