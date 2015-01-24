@@ -1,0 +1,29 @@
+OASISFormat:  0.4
+Name:         Prop
+Version:      0.0
+Synopsis:     Propositional logic and SAT solving
+Authors:      Andrei Formiga
+License:      MIT
+Plugins:      DevFiles (0.4), META (0.4)
+BuildTools:   ocamlbuild
+
+Library Prop
+  Path:            .
+  Modules:         Prop
+  InternalModules: Util
+  BuildDepends:   
+  CompiledObject:  best
+  NativeOpt:       -inline 20
+
+Executable test
+  Path:            .
+  MainIs:          test.ml
+  Install:         false
+  Build$:          flag(tests)
+  BuildDepends:    oUnit (>= 2.0.0), Prop
+  CompiledObject:  best
+  ByteOpt:        
+  NativeOpt:       -inline 20
+
+Test main
+  Command:         $test
