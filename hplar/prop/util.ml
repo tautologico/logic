@@ -42,7 +42,7 @@ let uniq l =
 let setify =
   let rec canonical lis =
      match lis with
-       x::(y::_ as rest) -> Pervasives.compare x y < 0 &c& canonical rest
+       x::(y::_ as rest) -> Pervasives.compare x y < 0 && canonical rest
      | _ -> true in
   fun l -> if canonical l then l
            else uniq (sort (fun x y -> Pervasives.compare x y <= 0) l);;
