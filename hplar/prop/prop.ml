@@ -61,3 +61,69 @@ let rec show_prop_formula f =
 
 let print_prop_formula f = print_string @@ show_prop_formula f
 
+(* syntax operations *)
+
+let mk_and p q = And(p, q)
+let mk_or p q = Or(p, q)
+let mk_imp p q = Imp(p, q)
+let mk_iff p q = Iff(p, q)
+
+let dest_iff fm = 
+  match fm with Iff(p, q) -> (p, q) | _ -> failwith "dest_iff"
+
+let dest_and fm = 
+  match fm with And(p, q) -> (p, q) | _ -> failwith "dest_and"
+
+let rec conjuncts fm = 
+  match fm with 
+    And(p, q) -> conjuncts p @ conjuncts q 
+  | _ -> [fm]
+
+let dest_or fm = 
+  match fm with Or(p, q) -> (p, q) | _ -> failwith "dest_or"
+
+let rec disjuncts fm = 
+  match fm with 
+    Or(p, q) -> disjuncts p @ disjuncts q 
+  | _ -> [fm]
+
+let dest_imp fm = 
+  match fm with Imp(p, q) -> (p, q) | _ -> failwith "dest_imp"
+
+let antecedent fm = fst @@ dest_imp fm
+let consequent fm = snd @@ dest_imp fm
+
+let rec onatoms f fm = 
+  match fm with
+  | Atom a -> f a
+  | Not(p) -> Not(onatoms f p)
+  | And(p, q) -> And(onatoms f p, onatoms f q)
+  | Or(p, q) -> Or(onatoms f p, onatoms f q)
+  | Imp(p, q) -> Imp(onatoms f p, onatoms f q)
+  | Iff(p, q) -> Iff(onatoms f p, onatoms f q)
+  | True | False -> fm
+
+let rec overatoms f fm b = 
+  match fm with
+  | Atom(a) -> f a b 
+  | Not(p) -> overatoms f p b
+  | And(p, q) | Or(p, q) | Imp(p, q) | Iff(p, q) -> overatoms f p (overatoms f q b)
+  | True | False -> b
+
+let atom_union f fm = Util.setify @@ overatoms (fun h t -> (f h) @ t) fm []
+
+
+(* The semantics of propositional logic *)
+
+let rec eval fm v = 
+  match fm with
+  | False -> false
+  | True -> true
+  | Atom x -> v x
+  | Not p -> not @@ eval p v
+  | And(p, q) -> (eval p v) && (eval q v)
+  | Or(p, q) -> (eval p v) || (eval q v)
+  | Imp(p, q) -> (not @@ eval p v) || (eval q v) 
+  | Iff(p, q) -> (eval p v) = (eval q v)
+
+
