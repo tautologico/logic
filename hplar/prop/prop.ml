@@ -31,6 +31,7 @@ module Props = struct
   let p = Atom (P "P")
   let q = Atom (P "Q")
   let r = Atom (P "R")
+  let s = Atom (P "S")
 
   let pi i = Atom (P ("P" ^ i))
   let qi i = Atom (P ("Q" ^ i))
@@ -126,4 +127,6 @@ let rec eval fm v =
   | Imp(p, q) -> (not @@ eval p v) || (eval q v) 
   | Iff(p, q) -> (eval p v) = (eval q v)
 
+
+let atoms fm = atom_union (fun x -> [x]) fm
 
