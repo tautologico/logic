@@ -130,3 +130,26 @@ let rec eval fm v =
 
 let atoms fm = atom_union (fun x -> [x]) fm
 
+let rec onallvaluations subfn v ats = 
+  match ats with
+  | [] -> subfn v
+  | p :: ps -> let v' t q = if q = p then t else (v q) in
+               onallvaluations subfn (v' false) ps &&
+                 onallvaluations subfn (v' true) ps
+
+let print_truthtable fm = 
+  let ats = atoms fm in
+  let width = List.fold_right (fun p -> max @@ String.length @@ pname p) ats (5+1) in
+  let fixw s = s ^ Bytes.make (width - String.length s) ' ' in
+  let truthstring p = fixw (if p then "true" else "false") in
+  let mk_row v = 
+    let lis = List.map (fun x -> truthstring @@ v x) ats
+    and ans = truthstring @@ eval fm v in
+    print_endline @@ List.fold_right (^) lis ("| " ^ ans); true 
+  in
+  let separator = String.make (width * (List.length ats) + 9) '-' in
+  print_endline @@ List.fold_right (fun s t -> fixw (pname s) ^ t) ats "| formula";
+  print_endline separator;
+  let _ = onallvaluations mk_row (fun x -> false) ats in
+  print_endline separator
+
