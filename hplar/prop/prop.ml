@@ -28,10 +28,14 @@ type formula =
 
 (* A few builtin propositions as formulas *)
 module Props = struct 
-  let p = Atom (P "P")
-  let q = Atom (P "Q")
-  let r = Atom (P "R")
-  let s = Atom (P "S")
+  let p_prop = P "P"
+  let p = Atom p_prop
+  let q_prop = P "Q"
+  let q = Atom q_prop
+  let r_prop = P "R"
+  let r = Atom r_prop
+  let s_prop = P "S"
+  let s = Atom s_prop
 
   let pi i = Atom (P ("P" ^ i))
   let qi i = Atom (P ("Q" ^ i))
@@ -152,4 +156,21 @@ let print_truthtable fm =
   print_endline separator;
   let _ = onallvaluations mk_row (fun x -> false) ats in
   print_endline separator
+
+(* Tautology and satisfiability checking *)
+
+let tautology fm = 
+  onallvaluations (eval fm) (fun p -> false) (atoms fm)
+
+let unsatisfiable fm = tautology (Not fm)
+
+let satisfiable fm = not @@ unsatisfiable fm
+
+
+(* Substitution *)
+
+(* substitute the proposition p with formula fm in phi *)
+let psubst p fm phi = 
+  onatoms (fun p' -> if p = p' then fm else Atom p') phi
+
 

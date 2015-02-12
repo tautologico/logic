@@ -47,6 +47,18 @@ let test_eval ctxt =
   assert_equal (eval f3 val2) true;
   assert_equal (eval f3 val3) false
 
+let test_tautology ctxt = 
+  let open Props in
+  assert_equal (tautology (p ++ ~~p)) true;
+  assert_equal (tautology (p ++ q ==> p)) false;
+  assert_equal (tautology (p ++ q ==> q ++ (p <=> q))) false;
+  assert_equal (tautology ((p ++ q) ** ~~(p ** q) ==> (~~p <=> q))) true
+
+let test_subst ctxt = 
+  let open Props in
+  assert_equal (psubst p_prop (p ** q) (p ** q ** q ** p)) 
+               ((p ** q) ** q ** q ** (p ** q))
+
 let suite1 = 
   "Tests" >:::
     [ 
@@ -54,7 +66,9 @@ let suite1 =
       "conjuncts" >:: test_conjuncts;
       "onatoms" >:: test_onatoms;
       "atomunion (and overatoms)" >:: test_atomunion;
-      "evaluation" >:: test_eval 
+      "evaluation" >:: test_eval;
+      "tautology checking" >:: test_tautology;
+      "substitution" >:: test_subst
     ]
 
 let () = 
