@@ -52,7 +52,9 @@ let test_tautology ctxt =
   assert_equal (tautology (p ++ ~~p)) true;
   assert_equal (tautology (p ++ q ==> p)) false;
   assert_equal (tautology (p ++ q ==> q ++ (p <=> q))) false;
-  assert_equal (tautology ((p ++ q) ** ~~(p ** q) ==> (~~p <=> q))) true
+  assert_equal (tautology ((p ++ q) ** ~~(p ** q) ==> (~~p <=> q))) true;
+  assert_equal (tautology (p ++ (q <=> r) <=> (p ++ q <=> p ++ r))) true;
+  assert_equal (tautology ((p ==> q) <=> (q ==> p))) false
 
 let test_subst ctxt = 
   let open Props in
