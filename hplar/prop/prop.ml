@@ -174,3 +174,15 @@ let psubst p fm phi =
   onatoms (fun p' -> if p = p' then fm else Atom p') phi
 
 
+(* Duality *)
+
+let rec dual fm = 
+  match fm with
+  | True -> False
+  | False -> True
+  | Atom p -> fm
+  | Not f -> Not (dual f)
+  | And(f1, f2) -> Or(dual f1, dual f2)
+  | Or(f1, f2) -> And(dual f1, dual f2)
+  | _ -> failwith "No dual formula for connectives ==> or <=>"
+
