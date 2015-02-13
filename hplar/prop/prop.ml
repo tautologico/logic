@@ -220,3 +220,33 @@ let positive lit = not @@ negative lit
 
 let negate = function (Not p) -> p | p -> Not p
 
+let rec nnf1 fm = 
+  match fm with
+  | And(f1, f2) -> And(nnf1 f1, nnf1 f2)
+  | Or(f1, f2)  -> Or(nnf1 f1, nnf1 f2)
+  | Imp(f1, f2) -> Or(nnf1 @@ Not f1, nnf1 f2)
+  | Iff(f1, f2) -> Or(And(nnf1 f1, nnf1 f2), And(nnf1 @@ Not f1, nnf1 @@ Not f2))
+  | Not (Not f) -> nnf1 f
+  | Not (And(f1, f2)) -> Or(nnf1 @@ Not f1, nnf1 @@ Not f2)
+  | Not (Or(f1, f2))  -> And(nnf1 @@ Not f1, nnf1 @@ Not f2)
+  | Not (Imp(f1, f2)) -> And(nnf1 f1, nnf1 @@ Not f2)
+  | Not (Iff(f1, f2)) -> Or(And(nnf1 f1, nnf1 @@ Not f2), And(nnf1 @@ Not f1, nnf1 f2))
+  | _ -> fm
+
+let nnf fm = nnf1 @@ psimplify fm
+
+let rec nenf1 fm = 
+  match fm with
+  | Not (Not f) -> nenf1 f
+  | Not (And(f1, f2)) -> Or(nenf1 @@ Not f1, nenf1 @@ Not f2)
+  | Not (Or(f1, f2)) -> And(nenf1 @@ Not f1, nenf1 @@ Not f2)
+  | Not (Imp(f1, f2)) -> And(nenf1 f1, nenf1 @@ Not f2)
+  | Not (Iff(f1, f2)) -> Iff(nenf1 f1, nenf1 @@ Not f2)
+  | And(f1, f2) -> And(nenf1 f1, nenf1 f2)
+  | Or(f1, f2)  -> Or(nenf1 f1, nenf1 f2)
+  | Imp(f1, f2) -> Or(nenf1 @@ Not f1, nenf1 f2)
+  | Iff(f1, f2) -> Iff(nenf1 f1, nenf1 f2)
+  | _ -> fm
+
+let nenf fm = nenf1 @@ psimplify fm
+

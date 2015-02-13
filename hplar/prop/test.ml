@@ -67,6 +67,12 @@ let test_psimp ctxt =
   assert_equal (psimplify f1) (~~p ==> ~~q);
   assert_equal (psimplify (((p ==> q) ==> True) ++ ~~False)) True
 
+let test_nnf ctxt = 
+  let open Props in
+  let f1 = (p <=> q) <=> ~~(r ==> s) in
+  assert_equal (nnf f1) ((p ** q ++ ~~p ** ~~q) ** r ** ~~s ++ (p ** ~~q ++ ~~p ** q) ** (~~r ++ s));
+  assert_equal (tautology @@ Imp(f1, nnf f1)) true
+
 let suite1 = 
   "Tests" >:::
     [ 
@@ -77,7 +83,8 @@ let suite1 =
       "evaluation" >:: test_eval;
       "tautology checking" >:: test_tautology;
       "substitution" >:: test_subst;
-      "basic simplification" >:: test_psimp
+      "basic simplification" >:: test_psimp;
+      "negation normal form" >:: test_nnf
     ]
 
 let () = 
