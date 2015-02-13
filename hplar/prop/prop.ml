@@ -186,3 +186,37 @@ let rec dual fm =
   | Or(f1, f2) -> And(dual f1, dual f2)
   | _ -> failwith "No dual formula for connectives ==> or <=>"
 
+
+(* 2.5 Simplification and negation normal form *)
+
+let psimplify1 fm = 
+  match fm with
+  | Not False -> True
+  | Not True -> False
+  | Not (Not f) -> f
+  | And(f, False) | And(False, f) -> False
+  | And(f, True) | And(True, f) -> f
+  | Or(f, True) | Or(True, f) -> True
+  | Or(f, False) | Or(False, f) -> f
+  | Imp(False, f) | Imp(f, True) -> True
+  | Imp(True, f) -> f
+  | Imp(f, False) -> Not f
+  | Iff(f, True) | Iff(True, f) -> f
+  | Iff(f, False) | Iff(False, f) -> Not f
+  | _ -> fm
+
+let rec psimplify fm = 
+  match fm with
+  | Not f -> psimplify1 @@ Not (psimplify f)
+  | And(f1, f2) -> psimplify1 @@ And(psimplify f1, psimplify f2)
+  | Or(f1, f2)  -> psimplify1 @@ Or(psimplify f1, psimplify f2)
+  | Imp(f1, f2) -> psimplify1 @@ Imp(psimplify f1, psimplify f2)
+  | Iff(f1, f2) -> psimplify1 @@ Iff(psimplify f1, psimplify f2)
+  | _ -> fm
+
+let negative = function (Not p) -> true | _ -> false
+
+let positive lit = not @@ negative lit
+
+let negate = function (Not p) -> p | p -> Not p
+

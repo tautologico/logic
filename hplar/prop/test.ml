@@ -61,6 +61,12 @@ let test_subst ctxt =
   assert_equal (psubst p_prop (p ** q) (p ** q ** q ** p)) 
                ((p ** q) ** q ** q ** (p ** q))
 
+let test_psimp ctxt = 
+  let open Props in
+  let f1 = (True ==> (p <=> False)) ==> ~~(q ++ False ** r) in
+  assert_equal (psimplify f1) (~~p ==> ~~q);
+  assert_equal (psimplify (((p ==> q) ==> True) ++ ~~False)) True
+
 let suite1 = 
   "Tests" >:::
     [ 
@@ -70,7 +76,8 @@ let suite1 =
       "atomunion (and overatoms)" >:: test_atomunion;
       "evaluation" >:: test_eval;
       "tautology checking" >:: test_tautology;
-      "substitution" >:: test_subst
+      "substitution" >:: test_subst;
+      "basic simplification" >:: test_psimp
     ]
 
 let () = 
