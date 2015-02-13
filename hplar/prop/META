@@ -1,0 +1,11 @@
+# OASIS_START
+# DO NOT EDIT (digest: 4065450d16f627d75c652593fb07815b)
+version = "0.0"
+description = "Propositional logic and SAT solving"
+archive(byte) = "Prop.cma"
+archive(byte, plugin) = "Prop.cma"
+archive(native) = "Prop.cmxa"
+archive(native, plugin) = "Prop.cmxs"
+exists_if = "Prop.cma"
+# OASIS_STOP
+
