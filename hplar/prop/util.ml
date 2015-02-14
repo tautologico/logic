@@ -6,6 +6,8 @@
  *)
 
 
+let non p x = not @@ p x 
+
 (** Merging of sorted lists (maintaining repetitions). *)
 let rec merge ord l1 l2 =
   match l1 with
@@ -91,3 +93,26 @@ let subtract =
           else if h1 < h2 then h1::(subtract t1 l2)
           else subtract l1 t2 in
   fun s1 s2 -> subtract (setify s1) (setify s2);;
+
+let subset,psubset =
+  let rec subset l1 l2 =
+    match (l1,l2) with
+        ([],l2) -> true
+      | (l1,[]) -> false
+      | (h1::t1,h2::t2) ->
+          if h1 = h2 then subset t1 t2
+          else if h1 < h2 then false
+          else subset l1 t2
+  and psubset l1 l2 =
+    match (l1,l2) with
+        (l1,[]) -> false
+      | ([],l2) -> true
+      | (h1::t1,h2::t2) ->
+          if h1 = h2 then psubset t1 t2
+          else if h1 < h2 then false
+          else subset l1 t2 in
+  (fun s1 s2 -> subset (setify s1) (setify s2)),
+  (fun s1 s2 -> psubset (setify s1) (setify s2));;
+
+(** [image f s] calculates the image of function [f] over set [s]. *)
+let image f s = setify (List.map f s);;
