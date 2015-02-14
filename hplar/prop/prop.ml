@@ -297,3 +297,19 @@ let rec purednf fm =
   | Or(p, q) -> Util.union (purednf p) (purednf q)
   | _ -> [[fm]]
 
+let trivial lits = 
+  let pos, neg = List.partition positive lits in 
+  (Util.intersect pos (Util.image negate neg)) <> []
+
+(* shortcut for notational convenience *)
+let non = Util.non
+
+let simpdnf fm = 
+  match fm with
+  | False -> []
+  | True -> [[]]
+  | _ -> let djs = List.filter (non trivial) (purednf @@ nnf fm) in
+         List.filter (fun d -> not (List.exists (fun d' -> Util.psubset d' d) djs)) djs
+
+let dnf fm = list_disj @@ List.map list_conj (simpdnf fm)
+
