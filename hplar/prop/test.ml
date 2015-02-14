@@ -73,6 +73,16 @@ let test_nnf ctxt =
   assert_equal (nnf f1) ((p ** q ++ ~~p ** ~~q) ** r ** ~~s ++ (p ** ~~q ++ ~~p ** q) ** (~~r ++ s));
   assert_equal (tautology @@ Imp(f1, nnf f1)) true
 
+let test_dnf1 ctxt = 
+  let open Props in
+  let f1 = (p ++ q ** r) ** (~~p ++ ~~r) in
+  assert_equal (dnf1 f1) ((~~p ** q ** r) ++ ((p ** ~~q ** ~~r) ++ (p ** q ** ~~r)))
+
+let test_purednf ctxt = 
+  let open Props in
+  let f1 = (p ++ q ** r) ** (~~p ++ ~~r) in
+  assert_equal (purednf f1) [[p; ~~p]; [p; ~~r]; [q; r; ~~p]; [q; r; ~~r]]
+
 let suite1 = 
   "Tests" >:::
     [ 
@@ -84,7 +94,9 @@ let suite1 =
       "tautology checking" >:: test_tautology;
       "substitution" >:: test_subst;
       "basic simplification" >:: test_psimp;
-      "negation normal form" >:: test_nnf
+      "negation normal form" >:: test_nnf;
+      "disjunctive normal form (truth-table)" >:: test_dnf1;
+      "purednf" >:: test_purednf
     ]
 
 let () = 

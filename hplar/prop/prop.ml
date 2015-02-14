@@ -250,3 +250,50 @@ let rec nenf1 fm =
 
 let nenf fm = nenf1 @@ psimplify fm
 
+(* 2.6 Disjunctive and conjunctive normal forms *)
+
+(* DNF via truth tables *)
+
+let list_conj = function [] -> True | l -> Util.foldr_last mk_and l
+
+let list_disj = function [] -> False | l -> Util.foldr_last mk_or l
+
+let mk_lits pvs v = 
+  list_conj @@ List.map (fun p -> if eval p v then p else Not p) pvs
+
+let rec allsatvaluations subfn v pvs = 
+  match pvs with
+  | [] -> if subfn v then [v] else []
+  | p :: ps -> let v' t q = if q = p then t else (v q) in
+               allsatvaluations subfn (v' false) ps @
+                 allsatvaluations subfn (v' true) ps
+
+let dnf1 fm = 
+  let pvs = atoms fm in
+  let satvals = allsatvaluations (eval fm) (fun s -> false) pvs in
+  list_disj @@ List.map (mk_lits @@ List.map (fun p -> Atom p) pvs) satvals
+
+(* DNF via transformation *)
+
+let rec distrib fm = 
+  match fm with
+  | And(p, Or(q, r)) -> Or(distrib @@ And(p, q), distrib @@ And(p, r))
+  | And(Or(p, q), r) -> Or(distrib @@ And(p, r), distrib @@ And(q, r))
+  | _ -> fm
+
+let rec rawdnf fm =
+  match fm with
+  | And(p, q) -> distrib @@ And(rawdnf p, rawdnf q)
+  | Or(p, q) -> Or(rawdnf p, rawdnf q)
+  | _ -> fm
+
+(* Set-based representation *)
+
+let distribute s1 s2 = Util.(setify @@ allpairs union s1 s2)
+
+let rec purednf fm = 
+  match fm with
+  | And(p, q) -> distribute (purednf p) (purednf q)
+  | Or(p, q) -> Util.union (purednf p) (purednf q)
+  | _ -> [[fm]]
+
