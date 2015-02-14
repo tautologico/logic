@@ -30,12 +30,24 @@ let increasing f x y = Pervasives.compare (f x) (f y) < 0;;
 
 let decreasing f x y = Pervasives.compare (f x) (f y) > 0;;
 
+(** [allpairs f l1 l2] combines all possible pairs of 
+    elements from [l1] and [l2] using [f]; returns the list of results. *)
+let rec allpairs f l1 l2 =
+  match l1 with
+  | [] -> []
+  | h1::t1 -> List.fold_right (fun x a -> f h1 x :: a) l2 (allpairs f t1 l2)  
 
 (** [uniq l] returns a list similar to [l] but with duplicated elements 
     eliminated. *)
 let uniq l = 
   List.fold_right (fun i l -> if List.mem i l then l else i :: l) l []
 
+(** A fold right using the last element of the list as a starting value. *)
+let rec foldr_last f l = 
+  match l with
+  | [] -> failwith "foldr_last"
+  | [x] -> x
+  | x :: xs -> f x (foldr_last f xs)
 
 (** Create a set from the elements of a list. A set is just a sorted list 
     without duplicate elements. *)
