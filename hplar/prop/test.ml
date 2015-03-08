@@ -89,6 +89,12 @@ let test_dnf ctxt =
   assert_equal (dnf f1) ((p ** ~~r) ++ (q ** r ** ~~p));
   assert_equal (tautology @@ Iff(f1, dnf f1)) true
 
+let test_cnf ctxt = 
+  let open Props in
+  let f1 = (p ++ q ** r) ** (~~p ++ ~~r) in
+  assert_equal (cnf f1) ((p ++ q) ** (p ++ r) ** (~~p ++ ~~r));
+  assert_equal (tautology @@ Iff(f1, cnf f1)) true
+
 let suite1 = 
   "Tests" >:::
     [ 
@@ -103,7 +109,8 @@ let suite1 =
       "negation normal form" >:: test_nnf;
       "disjunctive normal form (truth-table)" >:: test_dnf1;
       "purednf" >:: test_purednf;
-      "disjunctive normal form" >:: test_dnf
+      "disjunctive normal form" >:: test_dnf;
+      "conjunctive normal form" >:: test_cnf
     ]
 
 let () = 

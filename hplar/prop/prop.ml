@@ -313,3 +313,15 @@ let simpdnf fm =
 
 let dnf fm = list_disj @@ List.map list_conj (simpdnf fm)
 
+
+(* CNF *)
+let purecnf fm = Not fm |> nnf |> purednf |> Util.image (Util.image negate)
+
+let simpcnf fm = 
+  match fm with
+  | False -> [[]]
+  | True -> []
+  | _ -> let cjs = List.filter (non trivial) (purecnf fm) in
+         List.filter (fun c -> not (List.exists (fun c' -> Util.psubset c' c) cjs)) cjs
+
+let cnf fm = list_conj (List.map list_disj (simpcnf fm))
