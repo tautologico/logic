@@ -95,6 +95,10 @@ let test_cnf ctxt =
   assert_equal (cnf f1) ((p ++ q) ** (p ++ r) ** (~~p ++ ~~r));
   assert_equal (tautology @@ Iff(f1, cnf f1)) true
 
+let test_ramsey ctxt = 
+  assert_equal (tautology @@ ramsey 3 3 5) false;
+  assert_equal (tautology @@ ramsey 3 3 6) true
+
 let suite1 = 
   "Tests" >:::
     [ 
@@ -110,7 +114,8 @@ let suite1 =
       "disjunctive normal form (truth-table)" >:: test_dnf1;
       "purednf" >:: test_purednf;
       "disjunctive normal form" >:: test_dnf;
-      "conjunctive normal form" >:: test_cnf
+      "conjunctive normal form" >:: test_cnf;
+      "formulas for ramsey's theorem" >:: test_ramsey
     ]
 
 let () = 

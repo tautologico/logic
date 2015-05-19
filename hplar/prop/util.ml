@@ -8,6 +8,8 @@
 
 let non p x = not @@ p x 
 
+let rec range m n = if m > n then [] else m :: (range (m+1) n)
+
 (** Merging of sorted lists (maintaining repetitions). *)
 let rec merge ord l1 l2 =
   match l1 with
@@ -116,3 +118,13 @@ let subset,psubset =
 
 (** [image f s] calculates the image of function [f] over set [s]. *)
 let image f s = setify (List.map f s);;
+
+(* ------------------------------------------------------------------------- *)
+(* Finding all subsets or all subsets of a given size.                       *)
+(* ------------------------------------------------------------------------- *)
+
+let rec allsets m l =
+  if m = 0 then [[]] else
+  match l with
+    [] -> []
+  | h::t -> union (image (fun g -> h::g) (allsets (m - 1) t)) (allsets m t);;

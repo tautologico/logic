@@ -324,4 +324,99 @@ let simpcnf fm =
   | _ -> let cjs = List.filter (non trivial) (purecnf fm) in
          List.filter (fun c -> not (List.exists (fun c' -> Util.psubset c' c) cjs)) cjs
 
-let cnf fm = list_conj (List.map list_disj (simpcnf fm))
+let cnf fm = list_conj @@ List.map list_disj (simpcnf fm)
+
+
+(* 2.7 Applications of propositional logic *)
+
+(* Ramsey's theorem *)
+
+let ramsey s t n = 
+  let vertices = Util.range 1 n in
+  let yesgrps = List.map (Util.allsets 2) (Util.allsets s vertices) in
+  let nogrps = List.map (Util.allsets 2) (Util.allsets t vertices) in
+  let e [m;n] = Atom (P ("p_" ^ (string_of_int m) ^"_"^ (string_of_int n))) in
+  Or (list_disj @@ List.map (fun g -> list_conj @@ List.map e g) yesgrps,
+      list_disj @@ List.map (fun g -> list_conj @@ List.map (fun p -> Not (e p)) g) nogrps)
+
+(* Digital circuits *)
+
+let halfsum x y = Iff(x, Not y)
+
+let halfcarry x y = And(x, y)
+
+let ha x y s c = And(Iff(s, halfsum x y), Iff(c, halfcarry x y))
+
+let carry x y z = Or(And(x, y), And(Or(x, y), z))
+
+let sum x y z = halfsum (halfsum x y) z
+
+let fa x y z s c = And(Iff(s, sum x y z), Iff(c, carry x y z))
+
+let conjoin f l = list_conj (map f l)
+
+(* Addition *)
+
+let ripplecarry x y c out n = 
+  conjoin (fun i -> fa (x i) (y i) (c i) (out i) (c (i+1)))
+          Util.range 0 (n-1)
+
+let mk_index x i = Atom(P (x ^ "_" ^ (string_of_int i)))
+
+let mk_index2 x i j = 
+  Atom(P (x ^"_"^ (string_of_int i) ^"_"^ (string_of_int j)))
+
+let ripplecarry0 x y c out n = 
+  psimplify @@
+    ripplecarry x y (fun i -> if i = 0 then False else c i) out n
+
+let ripplecarry1 x y c out n = 
+  psimplify @@
+    ripplecarry x y (fun i -> if i = 0 then True else c i) out n
+
+let mux sel in0 in1 = Or(And(Not sel, in0), And(sel, in1))
+
+let offset n x i = x (n + i)
+
+let rec carryselect x y c0 c1 s0 s1 c s n k = 
+  let k' = min n k in
+  let fm = 
+    And(And(ripplecarry0 x y c0 s0 k', ripplecarry1 x y c1 s1 k'),
+        And(Iff(c k', mux (c 0) (c0 k') (c1 k')),
+            conjoin (fun i -> Iff(s i, mux (c 0) (s0 i) (s1 i)))
+                    Util.range 0 (k' - 1) 
+  in
+  if k' < k then fm else
+    And(fm, carryselect (offset k x) (offset k y) (offset k c0) (offset k c1)
+                        (offset k s0) (offset k s1) (offset k c) (offset k s)
+                        (n - k) k)
+
+let mk_adder_test n k = 
+  let [x; y; c; s; c0; s0; c1; s1; c2; s2] = 
+    List.map mk_index ["x"; "y"; "c"; "s"; "c0"; "s0"; "c1"; "s2"; "c2"; "s2"] 
+  in
+  Imp(And(And(carryselect x y c0 c1 s0 s1 c s n k, Not (c 0)),
+          ripplecarry0 x y c2 s2 n),
+      And(Iff(c n, c2 n),
+          conjoin (fun i -> Iff(s i, s2 i)) (Util.range 0 (n-1))
+
+(* Multiplication *)
+
+let rippleshift u v c z w n = 
+  ripplecarry0 u v (fun i -> if i = n then w (n-1) else c (i+1))
+               (fun i -> if i = 0 then z else w (i-1)) n
+
+let multiplier x u v out n = 
+  if n = 1 then And(Iff(out 0, x 0 0), Not (out 1)) 
+  else psimplify @@
+         And(Iff(out 0, x 0 0),
+             And(rippleshift (fun i -> if i = n-1 then False else x 0 (i+1))
+                             (x 1) (v 2) (out 1) (u 2) n,
+                 if n = 2 then And(Iff(out 2, u 2 0), Iff(out 3, u 2 1))
+                 else conjoin (fun k -> rippleshift (u k) (x k) (v (k+1)) (out k)
+                                                    (if k = n-1 then fun i -> out (n+i)
+                                                     else u (k+1)) n) 
+                              (Util.range 2 (n-1))))
+
+(* Primality and factorization *)
+
