@@ -105,3 +105,5 @@ let parse_clause s =
      | Some s2 ->        
         { head = hd; body = parse_body s2 }
 
+let split_lines s = 
+  []
