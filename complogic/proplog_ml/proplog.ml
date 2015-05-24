@@ -27,13 +27,6 @@ let is_whitespace c =
 let prop_char c = 
   (is_lower c) || (is_upper c) || (is_digit c)
 
-let string_chop s i = 
-  let len = String.length s in
-  String.sub s i (len-i)
-
-let string_split s i = 
-  (String.sub s 0 i, string_chop s i)
-
 (** Encontra o primeiro indice na string s que nao satisfaz o predicado p. *)
 let string_while_ix p s = 
   let len = String.length s in
@@ -42,6 +35,18 @@ let string_while_ix p s =
     else if (p s.[i]) then loop (i+1) else Some i
   in
   loop 0
+
+let string_chop s i = 
+  let len = String.length s in
+  String.sub s i (len-i)
+
+let string_chop_while p s = 
+  match string_while_ix p s with
+    None -> ""
+  | Some ix -> string_chop s ix
+
+let string_split s i = 
+  (String.sub s 0 i, string_chop s i)
 
 let skip_whitespace s = 
   match string_while_ix is_whitespace s with
@@ -106,7 +111,15 @@ let parse_clause s =
         { head = hd; body = parse_body s2 }
 
 let split_lines s = 
-  []
-
+  let rec loop s cls =
+    if s = "" then cls else
+      match string_while_ix (fun c -> c <> '\r' && c <> '\n') s with
+        None -> (s :: cls)
+      | Some ix -> let (line, rest) = string_split s ix in
+                   loop (string_chop_while (fun c -> c = '\r' || c = '\n') rest) (line :: cls)
+  in
+  List.rev @@ loop s []
+    
 let parse_program s = 
-  []
+  List.map parse_clause (split_lines s)
+
