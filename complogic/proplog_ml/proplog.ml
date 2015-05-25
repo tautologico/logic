@@ -123,3 +123,13 @@ let split_lines s =
 let parse_program s = 
   List.map parse_clause (split_lines s)
 
+let rec establish cls gls = 
+  match gls with
+  | [] -> true
+  | g :: rgls -> (establish_goal cls g) &&
+                   (establish cls rgls)
+and establish_goal cls g = 
+  let matches = List.filter (fun c -> c.head = g) cls in
+  List.exists (fun c -> establish cls c.body) matches
+
+
